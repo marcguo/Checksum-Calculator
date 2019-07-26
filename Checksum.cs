@@ -35,21 +35,33 @@ namespace Binary_File_Checksum_Calculator
                     int currentPivot = (currentLow + currentHigh) / 2;
                     // The old cutoff point, the byte number where we stop comparing two files' checksum at.
                     int oldPivot = 0;
+                    // Are the files still the same while we go through them?
+                    bool areSame = true;
                     // Before we find out the "diverge" point of these two files:
                     while (oldPivot != currentPivot)
                     {
                         // Update the old pivot point.
                         oldPivot = currentPivot;
+                        // See if the files are still the same up to the currentPivot/cutoff.
+                        areSame = IsSameCheckSum(currentPivot, firstFileBytes, secondFileBytes);
                         // Assign a new value to the current pivot point, depending on whether the files are
                         // still the same in checksum or not.
                         currentPivot = 
-                            NextPivot(currentPivot, IsSameCheckSum(currentPivot, firstFileBytes, secondFileBytes),
-                            currentLow, currentHigh);
+                            NextPivot(currentPivot, areSame, currentLow, currentHigh);
                         // Update the bounds accordingly.
                         currentHigh = currentPivot > oldPivot ? currentHigh : oldPivot;
                         currentLow  = currentPivot < oldPivot ? currentLow : oldPivot;
                     }
-                    Console.WriteLine("Go to byte # " + currentPivot.ToString() + "\n");
+                    // Same size!
+                    if (areSame)
+                    {
+                        Console.WriteLine("\nThese two files have the same checksum.");
+                    }
+                    // Not the same.
+                    else
+                    {
+                        Console.WriteLine("\nGo to byte # " + currentPivot.ToString() + "\n");
+                    }
                 }
                 // Or just calculate the checksum for one file:
                 else if (selection == "sum")
